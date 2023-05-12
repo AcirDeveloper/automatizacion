@@ -1,0 +1,30 @@
+name: Verificar y automatizar push
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v2
+
+      - name: Configurar Git
+        run: |
+          git config --global user.name "Acir Developer"
+          git config --global user.email "acirdeveloper@gmail.com"
+
+      - name: Verificar push en el repositorio
+        run: |
+          today=$(date +'%Y-%m-%d')
+          if ! git log --since=midnight --oneline | grep .; then
+            git clone "https://github.com/${{ env.GITHUB_REPOSITORY }}"
+            cd "${{ env.GITHUB_REPOSITORY }}"
+            echo "Eres un vago, no programaste nada hoy" > index.txt
+            git add index.txt
+            git commit -m "Push automatizado"
+            git push origin master
+          fi
